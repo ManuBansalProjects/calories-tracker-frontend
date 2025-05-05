@@ -1,0 +1,71 @@
+<!-- Add User Button -->
+<div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+  <button mat-flat-button color="primary" (click)="openDialog(null)">
+    <mat-icon>add</mat-icon> Add User
+  </button>
+</div>
+
+<!-- Table Container -->
+<div class="mat-elevation-z8" style="overflow-x: auto;">
+  <table mat-table [dataSource]="dataSource" class="full-width-table">
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <td mat-cell *matCellDef="let element"> {{ element.name }} </td>
+    </ng-container>
+
+    <!-- Gender Column -->
+    <ng-container matColumnDef="gender">
+      <th mat-header-cell *matHeaderCellDef> Gender </th>
+      <td mat-cell *matCellDef="let element"> {{ element.gender }} </td>
+    </ng-container>
+
+    <!-- Age Column -->
+    <ng-container matColumnDef="age">
+      <th mat-header-cell *matHeaderCellDef> Age </th>
+      <td mat-cell *matCellDef="let element"> {{ element.age }} </td>
+    </ng-container>
+
+    <!-- Weight Column -->
+    <ng-container matColumnDef="weight">
+      <th mat-header-cell *matHeaderCellDef> Weight (kg) </th>
+      <td mat-cell *matCellDef="let element"> {{ element.weight }} </td>
+    </ng-container>
+
+    <!-- Height Column -->
+    <ng-container matColumnDef="height">
+      <th mat-header-cell *matHeaderCellDef> Height (cm) </th>
+      <td mat-cell *matCellDef="let element"> {{ element.height }} </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Actions </th>
+      <td mat-cell *matCellDef="let element" style="text-align: center;">
+        <button mat-icon-button color="primary" matTooltip="Edit" (click)="openDialog(element)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteUser(element.user_id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-icon-button color="accent" matTooltip="Manage Calories" (click)="listCalories(element.user_id)">
+          <mat-icon>local_fire_department</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- Table Row Definitions -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <!-- Paginator -->
+  <mat-paginator
+    [length]="totalUsers"
+    [pageSize]="10"
+    [pageSizeOptions]="[5, 10, 20]"
+    showFirstLastButtons
+    aria-label="Select page of users">
+  </mat-paginator>
+</div>
