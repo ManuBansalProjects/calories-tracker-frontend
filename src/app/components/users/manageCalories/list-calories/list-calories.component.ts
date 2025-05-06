@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { ToastrService } from 'ngx-toastr';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
 
 export interface PeriodicElement {
   _id : string,
@@ -29,13 +31,15 @@ interface UserDetails {
 @Component({
   selector: 'app-list-calories',
   imports: [MatTableModule, MatPaginatorModule, 
-    MatIconModule, MatButtonModule, MatDividerModule, MatCardModule, RouterModule
+    MatIconModule, MatButtonModule, MatDividerModule, MatCardModule, RouterModule,
+    MatProgressSpinnerModule, CommonModule
   ],
   templateUrl: './list-calories.component.html',
   styleUrl: './list-calories.component.scss'
 })
 export class ListCaloriesComponent {
 
+  pendingApis = 2;
   userId : string = '';
   userDetails : UserDetails = {};
   totalCaloriesCount = 0;
@@ -64,15 +68,21 @@ export class ListCaloriesComponent {
   }
 
   ngAfterViewInit() {
-    this.paginator.page.subscribe(() => {
-      this.loadCalories(this.paginator.pageIndex, this.paginator.pageSize);
-    });
+    // this.paginator.page.subscribe(() => {
+    //   this.loadCalories(this.paginator?.pageIndex, this.paginator?.pageSize);
+    // });
+    if (this.paginator) {
+      this.paginator.page.subscribe(() => {
+        this.loadCalories(this.paginator.pageIndex, this.paginator.pageSize);
+      });
+    }
   }
 
   // Method to load the list of users from the backend
   loadCalories(pageIndex:number, pageSize:number) {
-    this.calorieService.ListCalories({ skip : pageIndex*pageSize, limit : pageSize, userId : this.userId }).subscribe(
-      (data) => {
+    this.calorieService.ListCalories({ skip : pageIndex*pageSize, limit : pageSize, userId : this.userId })
+    .subscribe({
+      next : (data)=>{
         console.log('Fetched calories:', data);
         // Transform the data into the format expected by the table
         this.dataSource.data = data?.data?.calories?.map((calorie: any) => ({
@@ -87,24 +97,29 @@ export class ListCaloriesComponent {
         }));
 
         this.totalCaloriesCount= data?.data?.count;
+
+        this.decrementLoader();
       },
-      (error) => {
+      error : (error)=>{
         console.error('Error fetching calories:', error);
-        alert('There was an error fetching the calories!');
-      }
-    );
+        this.toastr.error('There was an error fetching the calories!');
+      },
+      // complete : ()=> this.decrementLoader
+    });
   }
 
   getUserDetails() {
-    this.userService.GetUser(this.userId).subscribe(
-      (data) => {
+    this.userService.GetUser(this.userId).subscribe({
+      next : (data)=>{
         this.userDetails = data?.data?.user;
+        this.decrementLoader();
       },
-      (error) => {
+      error : (error)=>{
         console.error('Error fetching calories:', error);
         this.toastr.error('There was an error fetching the calories!');
-      }
-    );
+      },
+      // complete : ()=> this.decrementLoader()
+    });
   }
   
 
@@ -128,5 +143,11 @@ export class ListCaloriesComponent {
         this.toastr.error('Error deleting calories');
       }
     );
+  }
+
+  decrementLoader() {
+    console.log('called');
+    this.pendingApis--;
+    console.log('-------pending', this.pendingApis);
   }
 }

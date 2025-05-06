@@ -1,12 +1,19 @@
-<!-- Add User Button -->
-<div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
-  <button mat-flat-button color="primary" (click)="openDialog(null)">
-    <mat-icon>add</mat-icon> Add User
-  </button>
-</div>
+<mat-card class="user-card">
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px;">
+    <mat-card-title>Users List</mat-card-title>
+    <button mat-flat-button color="primary" (click)="openDialog(null)">
+      <mat-icon>add</mat-icon> Add User
+    </button>
+  </div>
+
+  <mat-card-content>
+    <!-- Your user list or table goes here -->
+  </mat-card-content>
+</mat-card>
+
 
 <!-- Table Container -->
-<div class="mat-elevation-z8" style="overflow-x: auto;">
+<div class="mat-elevation-z8" style="overflow-x: auto; margin : 16px">
   <table mat-table [dataSource]="dataSource" class="full-width-table">
 
     <!-- Name Column -->

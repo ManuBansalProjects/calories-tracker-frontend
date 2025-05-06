@@ -9,6 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { UserFormDialogComponent } from './user-form-dialog/user-form-dialog.component';
 import { UserService } from '../../../service/userService/user.service';
 import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
 
 export interface PeriodicElement {
   user_id : string,
@@ -24,7 +25,7 @@ export interface PeriodicElement {
   imports: [
     MatTableModule, MatPaginatorModule, 
     MatIconModule, MatButtonModule, MatDividerModule, 
-    MatDialogModule
+    MatDialogModule, MatCardModule
   ],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss'

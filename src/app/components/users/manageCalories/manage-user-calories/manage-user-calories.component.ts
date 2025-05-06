@@ -18,6 +18,7 @@ import { MatCardContent, MatCardTitle, MatCardSubtitle} from '@angular/material/
 import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 interface UserDetails {
   name: string,
@@ -54,13 +55,14 @@ interface ActivityCategory {
   imports: [
     MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, 
     CommonModule, MatOptionModule, MatSelectModule, 
-    MatDatepickerModule, MatCardModule, RouterModule
+    MatDatepickerModule, MatCardModule, RouterModule, MatProgressSpinnerModule
   ],
   templateUrl: './manage-user-calories.component.html',
   styleUrl: './manage-user-calories.component.scss'
 })
 export class ManageUserCaloriesComponent {  
   
+  pendingApis : number = 0;
   userId : string = '';
   userDetails : UserDetails = {
     name: '',
@@ -99,7 +101,6 @@ export class ManageUserCaloriesComponent {
 
     this.form = this.fb.group({
       history_date: ['', Validators.required],
-      // foods: this.fb.array([this.createFoodGroup()]),
       foods: this.fb.array([]),
       activities: this.fb.array([]),
       total_food_calories : [0, Validators.required],
@@ -117,15 +118,17 @@ export class ManageUserCaloriesComponent {
   ngOnInit(){
     this.userId = this.route.snapshot.paramMap.get('userId') || '';
     this._id = this.route.snapshot.queryParamMap.get('_id') || '';
-    this.getUserDetails();
-    this.getFoodGroups();
-    this.getActivityCategories();
     if(this._id){
+      this.pendingApis = 4;
       this.getCaloriesDetails();
     }else{
+      this.pendingApis = 3;
       this.addFood();
       this.addActivity();
     }
+    this.getUserDetails();
+    this.getFoodGroups();
+    this.getActivityCategories();
   }
 
   //api
@@ -140,6 +143,8 @@ export class ManageUserCaloriesComponent {
         this.form.get('bmr')?.setValue(bmr);
         this.form.get('total_calories_out')?.setValue(bmr);
         this.form.get('net_calories')?.setValue(-bmr);
+
+        this.decrementLoader();
       },
       (error) => {
         console.error('Error fetching user details:', error);
@@ -183,6 +188,7 @@ export class ManageUserCaloriesComponent {
           }));
         })
 
+        this.decrementLoader();
       },
       (error) => {
         console.error('Error fetching user calories:', error);
@@ -200,6 +206,8 @@ export class ManageUserCaloriesComponent {
           this.foodGroups[foodGroup?.group] = foodGroup?.foods
         })
         this.foodGroupKeys = Object.keys(this.foodGroups);
+
+        this.decrementLoader();
       },
       (error) => {
         console.error('Error fetching food groups:', error);
@@ -217,6 +225,8 @@ export class ManageUserCaloriesComponent {
           this.activityCategories[activityCategory?.category] = activityCategory?.activities;
         })
         this.activityCategoryKeys = Object.keys(this.activityCategories);
+
+        this.decrementLoader();
       },
       (error) => {
         console.error('Error fetching actvity categories:', error);
@@ -416,5 +426,9 @@ export class ManageUserCaloriesComponent {
     } else {
       this.form.markAllAsTouched();
     }
+  }
+
+  decrementLoader() {
+    this.pendingApis--;
   }
 }
